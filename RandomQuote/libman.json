@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "tailwindcss@2.2.7",
+      "destination": "wwwroot/lib/tailwindcss/",
+      "files": [
+        "tailwind.min.css"
+      ]
+    }
+  ]
+}

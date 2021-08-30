@@ -1,0 +1,27 @@
+﻿@page "/"
+@using RandomQuote.Data
+@using RestSharp
+
+<div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); max-width: 50%">
+    @if (Quote != null)
+    {
+        <blockquote class="blockquote">
+            <p class="mb-0">@Quote.Body</p>
+            <footer class="blockquote-footer">@Quote.Author</footer>
+        </blockquote>
+    }
+</div>
+
+
+@code {
+
+    private Quote Quote { get; set; } = new Quote();
+
+    protected override async Task OnInitializedAsync()
+    {
+        IRestClient client = new RestClient("https://favqs.com/api");
+        Quote = (await client.GetAsync<QuoteResponse>(new RestRequest("qotd", Method.GET))).Quote;
+
+    }
+
+}
