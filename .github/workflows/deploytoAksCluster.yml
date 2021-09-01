@@ -1,0 +1,50 @@
+on: [push]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    
+    - uses: azure/docker-login@v1
+      with:
+        login-server: randomquote.azurecr.io
+        username: ${{ secrets.acr_randomquote_username }}
+        password: ${{ secrets.acr_randomquote_password }}
+    
+    - name: Build and push image to ACR
+      id: build-image
+      run: |
+        docker build "$GITHUB_WORKSPACE/RandomQuote" -f  "RandomQuote/Dockerfile" -t randomquote.azurecr.io/randomquotecluster:${{ github.sha }} --label dockerfile-path=RandomQuote/Dockerfile
+        docker push randomquote.azurecr.io/randomquotecluster:${{ github.sha }}
+    
+    - uses: azure/k8s-set-context@v1
+      with:
+         kubeconfig: ${{ secrets.aks_randomquotecluster_kubeConfig }}
+      id: login
+    
+    - name: Create namespace
+      run: |
+        namespacePresent=`kubectl get namespace | grep randomquote-clustera079 | wc -l`
+        if [ $namespacePresent -eq 0 ]
+        then
+            echo `kubectl create namespace randomquote-clustera079`
+        fi
+
+    - uses: azure/k8s-create-secret@v1
+      with:
+        namespace: randomquote-clustera079
+        container-registry-url: randomquote.azurecr.io
+        container-registry-username: ${{ secrets.acr_randomquote_username }}
+        container-registry-password: ${{ secrets.acr_randomquote_password }}
+        secret-name: randomquotecdockerauth
+       
+    - uses: azure/k8s-deploy@v1.2
+      with:
+        namespace: randomquote-clustera079
+        manifests: |
+          manifests/deployment.yml
+          manifests/service.yml
+        images: |
+          randomquote.azurecr.io/randomquotecluster:${{ github.sha }}
+        imagepullsecrets: |
+          randomquotecdockerauth
