@@ -14,7 +14,7 @@ jobs:
     - name: Build and push image to ACR
       id: build-image
       run: |
-        docker build "$GITHUB_WORKSPACE/RandomQuote" -f  "RandomQuote/Dockerfile" -t randomquote.azurecr.io/randomquotecluster:${{ github.sha }} --label dockerfile-path=RandomQuote/Dockerfile
+        docker build "$GITHUB_WORKSPACE" -f  "RandomQuote/Dockerfile" -t randomquote.azurecr.io/randomquotecluster:${{ github.sha }} --label dockerfile-path=RandomQuote/Dockerfile
         docker push randomquote.azurecr.io/randomquotecluster:${{ github.sha }}
     
     - uses: azure/k8s-set-context@v1
