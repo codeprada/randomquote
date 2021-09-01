@@ -26,5 +26,6 @@ stages:
         command: build
         dockerfile: '$(Build.SourcesDirectory)/RandomQuote/Dockerfile'
         buildContext: '$(Build.SourcesDirectory)'
+        containerRegistry: $(ContainerRegistry)        
         tags: |
           $(tag)
