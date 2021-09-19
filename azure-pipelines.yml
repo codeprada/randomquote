@@ -14,7 +14,7 @@ variables:
   imageRepository: 'randomquote'
   containerRegistry: 'randomquote.azurecr.io'
   dockerfilePath: '$(Build.SourcesDirectory)/RandomQuote/Dockerfile'
-  context: '$(Build.SourcesDirectory)/RandomQuote'
+  context: '$(Build.SourcesDirectory)'
   tag: '$(Build.BuildId)'
 
   # Agent VM image name
