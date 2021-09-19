@@ -15,7 +15,7 @@ variables:
   containerRegistry: 'randomquote.azurecr.io'
   dockerfilePath: '$(Build.SourcesDirectory)/RandomQuote/Dockerfile'
   context: '$(Build.SourcesDirectory)'
-  tag: '$(Build.BuildId)'
+  tag: 'latest'
 
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
