@@ -1,11 +1,10 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Azure.Extensions.AspNetCore.Configuration.Secrets;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 
 namespace RandomQuote
 {
@@ -18,9 +17,25 @@ namespace RandomQuote
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration(ConfigureAppConfiguration)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
                 });
+
+        private static void ConfigureAppConfiguration(HostBuilderContext context, IConfigurationBuilder config)
+        {
+            IConfigurationRoot build = config.Build();
+
+            if (context.HostingEnvironment.IsDevelopment())
+            {
+                
+            }
+            else if (context.HostingEnvironment.IsProduction())
+            {
+                config.AddAzureKeyVault(new SecretClient(new Uri(build["KeyVaultUrl"]), new DefaultAzureCredential()), new KeyVaultSecretManager());
+            }
+            
+        }
     }
 }

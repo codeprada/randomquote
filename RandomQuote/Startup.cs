@@ -10,6 +10,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.UI;
 
 namespace RandomQuote
 {
@@ -26,9 +31,39 @@ namespace RandomQuote
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddRazorPages();
+
+            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+                .AddMicrosoftIdentityWebApp(options =>
+                {
+                    options.Instance = Configuration["Instance"];
+                    options.Domain = Configuration["Domain"];
+                    options.TenantId = Configuration["TenantId"];
+                    options.ClientId = Configuration["ClientId"];
+                    options.ClientSecret = Configuration["ClientSecret"];
+                    options.CallbackPath = Configuration["CallbackPath"];
+                    
+                })
+                .EnableTokenAcquisitionToCallDownstreamApi(new[] { "user.readwrite.all" })
+                .AddInMemoryTokenCaches();
+
+            services.AddControllersWithViews(options =>
+            {
+                AuthorizationPolicy policy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+
+                options.Filters.Add(new AuthorizeFilter(policy));
+            }).AddMicrosoftIdentityUI();
+
+            services.AddAuthorization(options =>
+            {
+                // By default, all incoming requests will be authorized according to the default policy
+                options.FallbackPolicy = options.DefaultPolicy;
+            });
+
+            services.AddRazorPages()
+                .AddMicrosoftIdentityUI();
             services.AddServerSideBlazor();
-            services.AddSingleton<WeatherForecastService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -49,6 +84,9 @@ namespace RandomQuote
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

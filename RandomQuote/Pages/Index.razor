@@ -2,15 +2,24 @@
 @using RandomQuote.Data
 @using RestSharp
 
-<div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); max-width: 50%">
-    @if (Quote != null)
-    {
-        <blockquote class="blockquote">
-            <p class="mb-0">@Quote.Body</p>
-            <footer class="blockquote-footer">@Quote.Author</footer>
-        </blockquote>
-    }
-</div>
+@attribute [Authorize]
+
+<AuthorizeView>
+    <div class="row">
+        <div class="col-12">
+            @context.User.Identity.Name
+        </div>
+    </div>
+    <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); max-width: 50%">
+        @if (Quote != null)
+        {
+            <blockquote class="blockquote">
+                <p class="mb-0">@Quote.Body</p>
+                <footer class="blockquote-footer">@Quote.Author</footer>
+            </blockquote>
+        }
+    </div>
+</AuthorizeView>
 
 
 @code {
